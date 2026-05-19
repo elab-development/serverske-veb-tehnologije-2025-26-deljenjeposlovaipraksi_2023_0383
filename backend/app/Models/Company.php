@@ -16,4 +16,7 @@ class Company extends Model
         'companySize',
         'description'
     ];
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }
