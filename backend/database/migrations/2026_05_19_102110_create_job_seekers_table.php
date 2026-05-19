@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('job_seekers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id'); //dodavanje spoljnog kljuca
             $table->string('firstName');
             $table->string('lastName');
             $table->enum('education', [
