@@ -18,4 +18,9 @@ class JobSeeker extends Model
         'bio',
         'github_url'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
