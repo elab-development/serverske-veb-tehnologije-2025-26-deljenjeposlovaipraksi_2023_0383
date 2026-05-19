@@ -19,4 +19,8 @@ class JobListing extends Model
         'salary_max',
         'is_active'
     ];
+
+    public function company(){
+        return $this->belongsTo(Company::class);
+    }
 }
