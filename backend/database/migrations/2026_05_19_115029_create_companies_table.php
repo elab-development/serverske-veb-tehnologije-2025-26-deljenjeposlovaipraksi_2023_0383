@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('company_name');
+            $table->string('phone')->unique();
+            $table->string('location');
+            $table->enum('company_size', [
+                '0-50',
+                '50-100',
+                '100-500',
+                '500-1000',
+                '1000+'
+            ]);
+            $table->text('description');
             $table->timestamps();
         });
     }
