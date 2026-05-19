@@ -14,6 +14,7 @@ class JobListing extends Model
         'description',
         'location',
         'type',
+        'experience_level',
         'slary_min',
         'salary_max',
         'is_active'
