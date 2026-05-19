@@ -13,7 +13,20 @@ return new class extends Migration
     {
         Schema::create('job_seekers', function (Blueprint $table) {
             $table->id();
-            
+            $table->string('firstName');
+            $table->string('lastName');
+            $table->enum('education', [
+                'osnovna_skola',
+                'srednja_skola',
+                'visa_skola',
+                'fakultet',
+                'master',
+                'doktorske_studije'
+            ]);
+            $table->string('phone')->unique();
+            $table->string('location');
+            $table->text('bio');
+            $table->string('github_url');
             $table->timestamps();
         });
     }
