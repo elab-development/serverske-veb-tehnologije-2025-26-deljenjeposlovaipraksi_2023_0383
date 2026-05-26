@@ -12,7 +12,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $user = User::all();
+        if(is_null($user)){
+            return response()->json('Data not found',404);
+        }
+
+        return response()->json($user);
     }
 
     /**
