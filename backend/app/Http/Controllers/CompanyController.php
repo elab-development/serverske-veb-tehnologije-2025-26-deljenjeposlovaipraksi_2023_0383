@@ -37,7 +37,15 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
-        //
+        $company = $request->user()->company;
+
+        if (is_null($company)) {
+            return response()->json([
+                'message' => 'Profile not found.'
+            ], 404);
+        }
+
+        return response()->json($company);
     }
 
     /**
@@ -53,7 +61,41 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'companyName' => 'sometimes|string|max:255',
+            'website'     => 'sometimes|nullable|url',
+            'location'    => 'sometimes|nullable|string|max:255',
+            'companySize' => 'sometimes|nullable|string|max:50',
+            'description' => 'sometimes|nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $company = $request->user()->company;
+
+        if (is_null($company)) {
+            return response()->json([
+                'message' => 'Profile not found.'
+            ], 404);
+        }
+
+        $company->update($request->only([
+            'companyName',
+            'website',
+            'location',
+            'companySize',
+            'description'
+        ]));
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'company' => $company
+        ]);
     }
 
     /**
@@ -61,6 +103,18 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
-        //
+        $company = $request->user()->company;
+
+        if (is_null($company)) {
+            return response()->json([
+                'message' => 'Profile not found.'
+            ], 404);
+        }
+
+        $company->delete();
+
+        return response()->json([
+            'message' => 'Profile deleted successfully.'
+        ]);
     }
 }
