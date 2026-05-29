@@ -10,10 +10,10 @@ class Company extends Model
     use HasFactory;
     protected $fillable = [
         'user_id',
-        'companyName',
+        'company_name',
         'website',
         'location',
-        'companySize',
+        'company_size',
         'description'
     ];
     public function user(){

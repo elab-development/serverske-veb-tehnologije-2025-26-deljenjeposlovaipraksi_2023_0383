@@ -11,8 +11,8 @@ class JobSeeker extends Model
     protected $fillable = [
         'user_id',
         'education',
-        'firstName',
-        'lastName',
+        'first_name',
+        'last_name',
         'phone',
         'location',
         'bio',
