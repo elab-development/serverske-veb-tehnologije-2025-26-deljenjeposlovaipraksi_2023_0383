@@ -22,13 +22,12 @@ Route::post('/login',    [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::middleware('role:job_seeker')->group(function () {
-        Route::get('/job-seeker/profile', [JobSeekerController::class, 'show']);
-        Route::put('/job-seeker/profile', [JobSeekerController::class, 'update']);
-    });
+    Route::get('/job-seeker/profile',  [JobSeekerController::class, 'show']);
+    Route::put('/job-seeker/profile',  [JobSeekerController::class, 'update']);
+    Route::delete('/job-seeker/profile', [JobSeekerController::class, 'destroy']);
 
-    Route::middleware('role:company')->group(function () {
-        Route::get('/company/profile', [CompanyController::class, 'show']);
-        Route::put('/company/profile', [CompanyController::class, 'update']);
-    });
+    // Company profil
+    Route::get('/company/profile',    [CompanyController::class, 'show']);
+    Route::put('/company/profile',    [CompanyController::class, 'update']);
+    Route::delete('/company/profile', [CompanyController::class, 'destroy']);
 });
