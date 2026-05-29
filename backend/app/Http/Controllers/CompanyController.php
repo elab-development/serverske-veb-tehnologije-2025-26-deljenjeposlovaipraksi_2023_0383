@@ -4,38 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CompanyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $company = Company::all();
-        return $company;
+        //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Company $company)
+    public function show(Request $request)  // ← dodato Request $request, uklonjen Company $company
     {
         $company = $request->user()->company;
 
@@ -48,25 +36,19 @@ class CompanyController extends Controller
         return response()->json($company);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Company $company)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Company $company)
+    public function update(Request $request)  // ← uklonjen Company $company
     {
         $validator = Validator::make($request->all(), [
-            'companyName' => 'sometimes|string|max:255',
-            'website'     => 'sometimes|nullable|url',
-            'location'    => 'sometimes|nullable|string|max:255',
-            'companySize' => 'sometimes|nullable|string|max:50',
-            'description' => 'sometimes|nullable|string',
+            'company_name' => 'sometimes|string|max:255',
+            'website'      => 'sometimes|nullable|url',
+            'location'     => 'sometimes|nullable|string|max:255',
+            'company_size' => 'sometimes|nullable|in:0-50,50-100,100-500,500-1000,1000+',
+            'description'  => 'sometimes|nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -85,10 +67,10 @@ class CompanyController extends Controller
         }
 
         $company->update($request->only([
-            'companyName',
+            'company_name',
             'website',
             'location',
-            'companySize',
+            'company_size',
             'description'
         ]));
 
@@ -98,10 +80,7 @@ class CompanyController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Company $company)
+    public function destroy(Request $request)  // ← dodato Request $request, uklonjen Company $company
     {
         $company = $request->user()->company;
 

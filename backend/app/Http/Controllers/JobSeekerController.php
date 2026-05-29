@@ -4,37 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\JobSeeker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class JobSeekerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(JobSeeker $jobSeeker)
+    public function show(Request $request)  // ← dodato Request $request, uklonjen JobSeeker $jobSeeker
     {
         $jobSeeker = $request->user()->jobSeeker;
 
@@ -47,26 +36,20 @@ class JobSeekerController extends Controller
         return response()->json($jobSeeker);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(JobSeeker $jobSeeker)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, JobSeeker $jobSeeker)
+    public function update(Request $request)  // ← uklonjen JobSeeker $jobSeeker
     {
         $validator = Validator::make($request->all(), [
-            'firstName'  => 'sometimes|string|max:255',
-            'lastName'   => 'sometimes|string|max:255',
+            'first_name' => 'sometimes|string|max:255',
+            'last_name'  => 'sometimes|string|max:255',
             'phone'      => 'sometimes|nullable|string|max:20',
             'location'   => 'sometimes|nullable|string|max:255',
             'bio'        => 'sometimes|nullable|string',
-            'education'  => 'sometimes|nullable|string|max:255',
+            'education'  => 'sometimes|nullable|in:osnovna_skola,srednja_skola,visa_skola,fakultet,master,doktorske_studije',
             'github_url' => 'sometimes|nullable|url',
         ]);
 
@@ -86,8 +69,8 @@ class JobSeekerController extends Controller
         }
 
         $jobSeeker->update($request->only([
-            'firstName',
-            'lastName',
+            'first_name',
+            'last_name',
             'phone',
             'location',
             'bio',
@@ -101,10 +84,7 @@ class JobSeekerController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(JobSeeker $jobSeeker)
+    public function destroy(Request $request)  // ← dodato Request $request, uklonjen JobSeeker $jobSeeker
     {
         $jobSeeker = $request->user()->jobSeeker;
 
