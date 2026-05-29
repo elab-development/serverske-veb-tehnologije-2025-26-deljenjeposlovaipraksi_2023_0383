@@ -92,4 +92,43 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ], 201);
     }
+        
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email'    => 'required|email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return response()->json([
+                'message' => 'Invalid credentials.'
+            ], 401);
+        }
+
+        $user = User::where('email', $request->email)->firstOrFail();
+
+        // Učitaj profil zavisno od role
+        if ($user->role === 'job_seeker') {
+            $user->load('jobSeeker');
+        } elseif ($user->role === 'company') {
+            $user->load('company');
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message'      => 'Hi ' . $user->name . ', welcome back!',
+            'data'         => $user,
+            'access_token' => $token,
+            'token_type'   => 'Bearer',
+        ]);
+}
 }
