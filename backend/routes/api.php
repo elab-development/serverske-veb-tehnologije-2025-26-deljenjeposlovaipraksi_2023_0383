@@ -18,3 +18,17 @@ Route::resource('applications',ApplicationController::class);
 Route::get('/company',[CompanyController::class, 'index'])->name('company');
 Route::get('/users',[UserController::class,'index']);
 Route::get('/users/{id}',[UserController::class, 'show']);
+Route::post('/login',    [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::middleware('role:job_seeker')->group(function () {
+        Route::get('/job-seeker/profile', [JobSeekerController::class, 'show']);
+        Route::put('/job-seeker/profile', [JobSeekerController::class, 'update']);
+    });
+
+    Route::middleware('role:company')->group(function () {
+        Route::get('/company/profile', [CompanyController::class, 'show']);
+        Route::put('/company/profile', [CompanyController::class, 'update']);
+    });
+});
