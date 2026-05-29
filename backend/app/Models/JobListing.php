@@ -15,9 +15,10 @@ class JobListing extends Model
         'location',
         'type',
         'experience_level',
-        'slary_min',
+        'salary_min',
         'salary_max',
-        'is_active'
+        'is_active',
+        'expires_at'
     ];
 
     public function company(){
