@@ -20,8 +20,8 @@ class ApplicationResource extends JsonResource
             'id'          => $this->resource->id,
             'status'      => $this->resource->status,
             'applied_at'  => $this->resource->applied_at,
-            'job_listing' => $this->resource->jobListing,
-            'job_seeker'  => $this->resource->jobSeeker,
+            'job_listing' => new JobListingResource($this->resource->jobListing),
+            'job_seeker'  => new JobSeekerResource($this->resource->jobSeeker),
         ];
     }
 }

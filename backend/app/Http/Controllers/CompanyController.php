@@ -23,7 +23,7 @@ class CompanyController extends Controller
         //
     }
 
-    public function show(Request $request)  // ← dodato Request $request, uklonjen Company $company
+    public function show(Request $request) 
     {
         $company = $request->user()->company;
 
@@ -41,7 +41,7 @@ class CompanyController extends Controller
         //
     }
 
-    public function update(Request $request)  // ← uklonjen Company $company
+    public function update(Request $request) 
     {
         $validator = Validator::make($request->all(), [
             'company_name' => 'sometimes|string|max:255',
@@ -80,7 +80,7 @@ class CompanyController extends Controller
         ]);
     }
 
-    public function destroy(Request $request)  // ← dodato Request $request, uklonjen Company $company
+    public function destroy(Request $request) 
     {
         $company = $request->user()->company;
 
