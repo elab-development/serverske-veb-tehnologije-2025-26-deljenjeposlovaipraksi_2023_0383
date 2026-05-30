@@ -1,33 +1,45 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\ApplicationTestController;
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\UserController;
-use App\Models\Application;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobListingController;
+use App\Http\Controllers\JobSeekerController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-Route::post('/jobs', [JobListingController::class, 'store']);
-Route::resource('applications',ApplicationController::class);
-Route::get('/company',[CompanyController::class, 'index'])->name('company');
-Route::get('/users',[UserController::class,'index']);
-Route::get('/users/{id}',[UserController::class, 'show']);
+// Javne rute
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
+
+// Javne rute za pregled oglasa
+Route::get('/job-listings',        [JobListingController::class, 'index']);
+Route::get('/job-listings/search', [JobListingController::class, 'search']);
+Route::get('/job-listings/{id}',   [JobListingController::class, 'show']);
+
+// Javne rute za korisnike
+Route::get('/users',       [UserController::class, 'index']);
+Route::get('/users/{id}',  [UserController::class, 'show']);
+
+// Zaštićene rute
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/job-seeker/profile',  [JobSeekerController::class, 'show']);
-    Route::put('/job-seeker/profile',  [JobSeekerController::class, 'update']);
+    // Job Seeker profil
+    Route::get('/job-seeker/profile',    [JobSeekerController::class, 'show']);
+    Route::put('/job-seeker/profile',    [JobSeekerController::class, 'update']);
     Route::delete('/job-seeker/profile', [JobSeekerController::class, 'destroy']);
 
     // Company profil
     Route::get('/company/profile',    [CompanyController::class, 'show']);
     Route::put('/company/profile',    [CompanyController::class, 'update']);
     Route::delete('/company/profile', [CompanyController::class, 'destroy']);
+
+    // Job Listings — resource ruta
+    Route::resource('job-listings', JobListingController::class)
+         ->only(['store', 'update', 'destroy']);
+
+    // Applications — samo ulogovani korisnici
+    Route::resource('applications', ApplicationController::class);
 });
