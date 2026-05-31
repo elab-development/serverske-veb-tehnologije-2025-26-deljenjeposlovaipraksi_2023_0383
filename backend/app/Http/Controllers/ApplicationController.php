@@ -12,10 +12,28 @@ class ApplicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $applications = Application::with(['jobSeeker','jobListing'])->get();
-        return new ApplicationCollection($applications);
+        $user = $request->user();
+
+        if($user->role === 'job_seeker'){
+            $applications = Application::with(['jobSeeker','jobListing'])
+                ->where('job_seeker_id',$user->job_seeker_id)
+                ->get();
+
+        }elseif($user->role === 'company'){
+            $applications = Application::with(['jobSeeker','jobListing'])
+                ->whereHas('jobListing', function ($q) use ($user){
+                    $q->where('company_id',$user->company->id);
+                })
+                ->get();
+        }else{
+            return response()->json([
+                'message' => 'Unautorized.'
+            ],404);
+        }
+
+        return ApplicationResource::collection($applications);
     }
 
     /**
@@ -31,25 +49,32 @@ class ApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $jobSeeker = $request->user()->jobSeeker;
+
+        if (is_null($jobSeeker)) {
+            return response()->json([
+                'message' => 'Only job seekers can apply for jobs.'
+            ], 403);
+        }
+
         $validated = $request->validate([
-            'job_seeker_id' => 'required|exists:job_seekers,id',
             'job_listing_id' => 'required|exists:job_listings,id',
-            'status' => 'required|in:accepted,pending,denied',
         ]);
 
-        $exists = Application::where('job_seeker_id',$validated['job_seeker_id'])
-            ->where('job_listing_id',$validated['job_listing_id'])->exists();
+        $exists = Application::where('job_seeker_id', $jobSeeker->id)
+            ->where('job_listing_id', $validated['job_listing_id'])
+            ->exists();
 
-        if($exists){
+        if ($exists) {
             return response()->json([
-                'message' => 'You have applied for this job'
+                'message' => 'You have already applied for this job.'
             ], 409);
         }
 
         $application = Application::create([
-            'job_seeker_id'  => $validated['job_seeker_id'],
+            'job_seeker_id'  => $jobSeeker->id,
             'job_listing_id' => $validated['job_listing_id'],
-            'status'         => $validated['status'],
+            'status'         => 'pending', 
             'applied_at'     => now(),
         ]);
 

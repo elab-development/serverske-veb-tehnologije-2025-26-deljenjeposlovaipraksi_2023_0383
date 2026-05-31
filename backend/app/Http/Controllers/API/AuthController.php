@@ -25,8 +25,8 @@ class AuthController extends Controller
 
         if($request->role === 'job_seeker'){
             $roleRules = [
-                'firstName' => 'required|string|max:255',
-                'lastName'  => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
+                'last_name'  => 'required|string|max:255',
                 'phone'     => 'nullable|string|max:20',
                 'location'  => 'nullable|string|max:255',
                 'bio'       => 'nullable|string',
@@ -35,10 +35,10 @@ class AuthController extends Controller
             ];
         } elseif ($request->role === 'company') {
             $roleRules = [
-                'companyName' => 'required|string|max:255',
+                'company_name' => 'required|string|max:255',
                 'website'     => 'nullable|url',
                 'location'    => 'nullable|string|max:255',
-                'companySize' => 'nullable|string|max:50',
+                'company_size' => 'nullable|string|max:50',
                 'description' => 'nullable|string',
             ];
         }
@@ -53,8 +53,8 @@ class AuthController extends Controller
 
         $user = User::create([
             'name'     => $request->role === 'company'
-                            ? $request->companyName
-                            : $request->firstName . ' ' . $request->lastName,
+                            ? $request->company_name
+                            : $request->first_name . ' ' . $request->last_name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'role'     => $request->role,
@@ -63,8 +63,8 @@ class AuthController extends Controller
         if($request->role === 'job_seeker'){
             JobSeeker::create([
                 'user_id'   => $user->id,
-                'firstName' => $request->firstName,
-                'lastName'  => $request->lastName,
+                'first_name' => $request->first_name,
+                'last_name'  => $request->last_name,
                 'phone'     => $request->phone,
                 'location'  => $request->location,
                 'bio'       => $request->bio,
@@ -74,17 +74,17 @@ class AuthController extends Controller
         }elseif ($request->role === 'company') {
             Company::create([
                 'user_id'     => $user->id,
-                'companyName' => $request->companyName,
+                'company_name' => $request->company_name,
                 'website'     => $request->website,
                 'location'    => $request->location,
-                'companySize' => $request->companySize,
+                'company_size' => $request->company_size,
                 'description' => $request->description,
             ]);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        $user->load($request->role === 'job_seekr' ? 'job_seeker' : 'company');
+        $user->load($request->role === 'job_seeker' ? 'jobSeeker' : 'company');
 
         return response()->json([
             'data' => $user,

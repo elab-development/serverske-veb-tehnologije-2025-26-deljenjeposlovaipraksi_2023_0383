@@ -12,14 +12,14 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
-// Javne rute za pregled oglasa
+// Javne rute za pregled i pretragu oglasa
 Route::get('/job-listings',        [JobListingController::class, 'index']);
 Route::get('/job-listings/search', [JobListingController::class, 'search']);
 Route::get('/job-listings/{id}',   [JobListingController::class, 'show']);
 
 // Javne rute za korisnike
-Route::get('/users',       [UserController::class, 'index']);
-Route::get('/users/{id}',  [UserController::class, 'show']);
+Route::get('/users',      [UserController::class, 'index']);
+Route::get('/users/{id}', [UserController::class, 'show']);
 
 // Zaštićene rute
 Route::middleware('auth:sanctum')->group(function () {
@@ -36,10 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/company/profile',    [CompanyController::class, 'update']);
     Route::delete('/company/profile', [CompanyController::class, 'destroy']);
 
-    // Job Listings — resource ruta
+    // Job Listings — resource ruta samo za store, update, destroy
     Route::resource('job-listings', JobListingController::class)
          ->only(['store', 'update', 'destroy']);
 
-    // Applications — samo ulogovani korisnici
+    // Applications
     Route::resource('applications', ApplicationController::class);
 });
