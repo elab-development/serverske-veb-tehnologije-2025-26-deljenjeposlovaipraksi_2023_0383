@@ -22,12 +22,15 @@ const Login = () => {
     return e;
   };
  
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+    try{
+      const response = await axios.post('http://localhost:8000/api/login',{email, password});
+      localStorage.post('token', response.data.token);
+      navigate('/home');
+    }catch(error){
+      alert("Pogresan email ili lozinka");
+    }
   };
  
   return (

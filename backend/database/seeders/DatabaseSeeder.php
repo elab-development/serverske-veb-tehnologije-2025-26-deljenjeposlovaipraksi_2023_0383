@@ -16,13 +16,11 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         JobListing::truncate();
         JobSeeker::truncate();
         Company::truncate();
         User::truncate();
         Application::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         User::factory(5)->create(['role' => 'job_seeker'])->each(function ($user){
             JobSeeker::factory()->create(['user_id' => $user->id]);

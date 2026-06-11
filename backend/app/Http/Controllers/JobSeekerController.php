@@ -23,7 +23,7 @@ class JobSeekerController extends Controller
         //
     }
 
-    public function show(Request $request)  // ← dodato Request $request, uklonjen JobSeeker $jobSeeker
+    public function show(Request $request)
     {
         $jobSeeker = $request->user()->jobSeeker;
 
@@ -41,7 +41,7 @@ class JobSeekerController extends Controller
         //
     }
 
-    public function update(Request $request)  // ← uklonjen JobSeeker $jobSeeker
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'first_name' => 'sometimes|string|max:255',
@@ -84,7 +84,7 @@ class JobSeekerController extends Controller
         ]);
     }
 
-    public function destroy(Request $request)  // ← dodato Request $request, uklonjen JobSeeker $jobSeeker
+    public function destroy(Request $request)
     {
         $jobSeeker = $request->user()->jobSeeker;
 
