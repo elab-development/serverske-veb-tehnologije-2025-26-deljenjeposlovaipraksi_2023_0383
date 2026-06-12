@@ -24,12 +24,45 @@ const Login = () => {
  
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationErrors = validate();
+    if(Object.keys(validationErrors).length>0){
+      setErrors(validationErrors);
+      return;
+    }
+
+    setLoading(true);
+
     try{
-      const response = await axios.post('http://localhost:8000/api/login',{email, password});
-      localStorage.post('token', response.data.token);
-      navigate('/home');
+      const response = await fetch('http://127.0.0.1:8000/api/login',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password
+        }),
+      });
+
+      const data = await response.json();
+      if(!response.ok){
+        setErrors({general: data.message || 'Pogresan email ili lozinka'});
+        return;
+      }
+
+      if(data.data.role === 'job_seeker'){
+        window.location.href = '/home';
+      }else if(data.data.role === 'company'){
+        window.location.href = '/home';
+      }else{
+        window.location.href = '/'
+      }
     }catch(error){
-      alert("Pogresan email ili lozinka");
+      setErrors({general: 'Greska pri povezivanju sa serverom'});
+    }finally {
+      setLoading(false);
     }
   };
  
@@ -123,7 +156,11 @@ const Login = () => {
                 Zaboravili ste lozinku?
               </Link>
             </div>
- 
+            {errors.general && (
+              <div className="login__error">
+                {errors.general}
+              </div>
+            )}
             <FormButton type="submit" variant="primary" fullWidth loading={loading}>
               Prijavi se →
             </FormButton>
