@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Company;
 use App\Models\JobSeeker;
 use App\Models\User;
@@ -14,6 +15,19 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+
+    public function loginAdmin(Request $request){
+        if(!Auth::guard('admin')->attempt($request->only('email','password'))){
+            return response()->json(['message' => 'Unauthorized'],401);
+        }
+
+        $admin = Admin::where('email', $request['email'])->firstOrFail();
+
+        $token = $admin->createToken('auth_token')->plainTextToken;
+
+        return response()->json(['message' => 'Hi '.$admin->name . ', welcome to admin home',
+         'access_token' => $token, 'token_type' => 'Bearer']);
+    }
     public function register(Request $request){
         $commonRules = [
             'email' => 'required|string|email|max:255|unique:users',
