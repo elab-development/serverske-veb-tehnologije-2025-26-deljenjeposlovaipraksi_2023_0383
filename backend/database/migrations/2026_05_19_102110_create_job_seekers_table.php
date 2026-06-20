@@ -23,7 +23,7 @@ return new class extends Migration
                 'fakultet',
                 'master',
                 'doktorske_studije'
-            ]);
+            ])->nullable();
             $table->string('phone')->unique();
             $table->string('location');
             $table->text('bio');

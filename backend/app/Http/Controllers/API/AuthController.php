@@ -15,31 +15,48 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-
     private function validateEmail(string $email): bool
 {
     $apiKey = env('ABSTRACT_API_KEY');
     
-    $response = \Http::get("https://emailvalidation.abstractapi.com/v1/", [
-        'api_key' => $apiKey,
-        'email'   => $email,
-    ]);
+    try {
+        $response = \Http::timeout(5)->get("https://emailreputation.abstractapi.com/v1/", [
+            'api_key' => $apiKey,
+            'email'   => $email,
+        ]);
 
-    $data = $response->json();
+        if (!$response->successful()) {
+            return true;
+        }
 
-    if (!$data['is_valid_format']['value']) {
-        return false;
+        $data = $response->json();
+        \Log::info('Abstract API response', ['data' => $data]);
+
+        if (!isset($data['email_deliverability'])) {
+            return true;
+        }
+
+        // Proveri format
+        if (!$data['email_deliverability']['is_format_valid']) {
+            return false;
+        }
+
+        // Proveri MX record
+        if (!$data['email_deliverability']['is_mx_valid']) {
+            return false;
+        }
+
+        // Proveri da li je disposable
+        if (isset($data['email_quality']['is_disposable']) && $data['email_quality']['is_disposable']) {
+            return false;
+        }
+
+        return true;
+
+    } catch (\Exception $e) {
+        \Log::error('Abstract API error', ['error' => $e->getMessage()]);
+        return true;
     }
-
-    if ($data['is_disposable_email']['value']) {
-        return false;
-    }
-
-    if ($data['deliverability'] !== 'DELIVERABLE') {
-        return false;
-    }
-
-    return true;
 }
 
     public function loginAdmin(Request $request){
