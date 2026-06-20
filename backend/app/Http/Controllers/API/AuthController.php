@@ -90,6 +90,11 @@ class AuthController extends Controller
                 'errors' => $validator->errors()
             ],422);
         }
+        if (!$this->validateEmail($request->email)) {
+            return response()->json([
+                'message' => 'Email adresa nije validna ili ne postoji.'
+        ], 422);
+}
 
         $user = User::create([
             'email'    => $request->email,
