@@ -16,6 +16,32 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
 
+    private function validateEmail(string $email): bool
+{
+    $apiKey = env('ABSTRACT_API_KEY');
+    
+    $response = \Http::get("https://emailvalidation.abstractapi.com/v1/", [
+        'api_key' => $apiKey,
+        'email'   => $email,
+    ]);
+
+    $data = $response->json();
+
+    if (!$data['is_valid_format']['value']) {
+        return false;
+    }
+
+    if ($data['is_disposable_email']['value']) {
+        return false;
+    }
+
+    if ($data['deliverability'] !== 'DELIVERABLE') {
+        return false;
+    }
+
+    return true;
+}
+
     public function loginAdmin(Request $request){
         if(!Auth::guard('admin')->attempt($request->only('email','password'))){
             return response()->json(['message' => 'Unauthorized'],401);

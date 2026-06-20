@@ -7,6 +7,7 @@ use App\Http\Controllers\JobListingController;
 use App\Http\Controllers\JobSeekerController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
@@ -32,6 +33,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/applications',        [ApplicationController::class, 'store']);
         Route::get('/applications/{id}',    [ApplicationController::class, 'show']);
         Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
+
+        Route::prefix('admin')->group(function () {
+        Route::get('/users',              [AdminController::class, 'index']);
+        Route::delete('/users/{id}',      [AdminController::class, 'destroy']);
+        Route::get('/job-listings',       [AdminController::class, 'jobListings']);
+        Route::delete('/job-listings/{id}', [AdminController::class, 'deleteJobListing']);
+        Route::get('/applications',       [AdminController::class, 'applications']);
+    });
     });
 
     Route::prefix('company')->group(function () {
