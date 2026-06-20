@@ -15,5 +15,10 @@ class UserSeeder extends Seeder
 
         User::factory(5)->create(['role' => 'job_seeker']);
         User::factory(3)->create(['role' => 'company']);
+        User::create([
+            'email'    => 'admin@karijera.rs',
+            'password' => Hash::make('admin123'),
+            'role'     => 'admin',
+        ]);
     }
 }
