@@ -16,48 +16,70 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
     private function validateEmail(string $email): bool
-{
-    $apiKey = env('ABSTRACT_API_KEY');
-    
-    try {
-        $response = \Http::timeout(5)->get("https://emailreputation.abstractapi.com/v1/", [
-            'api_key' => $apiKey,
-            'email'   => $email,
+    {
+        $apiKey = env('ABSTRACT_API_KEY');
+        
+        try {
+            $response = \Http::timeout(5)->get("https://emailreputation.abstractapi.com/v1/", [
+                'api_key' => $apiKey,
+                'email'   => $email,
+            ]);
+
+            if (!$response->successful()) {
+                return true;
+            }
+
+            $data = $response->json();
+            \Log::info('Abstract API response', ['data' => $data]);
+
+            if (!isset($data['email_deliverability'])) {
+                return true;
+            }
+
+            // Proveri format
+            if (!$data['email_deliverability']['is_format_valid']) {
+                return false;
+            }
+
+            // Proveri MX record
+            if (!$data['email_deliverability']['is_mx_valid']) {
+                return false;
+            }
+
+            // Proveri da li je disposable
+            if (isset($data['email_quality']['is_disposable']) && $data['email_quality']['is_disposable']) {
+                return false;
+            }
+
+            return true;
+
+        } catch (\Exception $e) {
+            \Log::error('Abstract API error', ['error' => $e->getMessage()]);
+            return true;
+        }
+    }
+
+    public function changePassword(Request $request){
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8'
         ]);
 
-        if (!$response->successful()) {
-            return true;
+        if($validator->fails()){
+            return response()->json(['errors' => $validator->errors()],422);
         }
 
-        $data = $response->json();
-        \Log::info('Abstract API response', ['data' => $data]);
+        $user = $request->user();
 
-        if (!isset($data['email_deliverability'])) {
-            return true;
+        if(!Hash::check($request->current_password, $user->password)){
+            return response()->json(['message' => 'Trenutna lozinka nije ispravna.'],403);
         }
 
-        // Proveri format
-        if (!$data['email_deliverability']['is_format_valid']) {
-            return false;
-        }
+        $user->password = Hash::make($request->new_password);
+        $user->save();
 
-        // Proveri MX record
-        if (!$data['email_deliverability']['is_mx_valid']) {
-            return false;
-        }
-
-        // Proveri da li je disposable
-        if (isset($data['email_quality']['is_disposable']) && $data['email_quality']['is_disposable']) {
-            return false;
-        }
-
-        return true;
-
-    } catch (\Exception $e) {
-        \Log::error('Abstract API error', ['error' => $e->getMessage()]);
-        return true;
+        return response()->json(['message' => 'Lozinka uspoesno promenjena.']);
     }
-}
 
     public function loginAdmin(Request $request){
         if(!Auth::guard('admin')->attempt($request->only('email','password'))){

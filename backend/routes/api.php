@@ -22,6 +22,7 @@ Route::get('/users/{id}', [UserController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     Route::prefix('job-seeker')->group(function () {
 
@@ -33,14 +34,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/applications',        [ApplicationController::class, 'store']);
         Route::get('/applications/{id}',    [ApplicationController::class, 'show']);
         Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
-
-        Route::prefix('admin')->group(function () {
-        Route::get('/users',              [AdminController::class, 'index']);
-        Route::delete('/users/{id}',      [AdminController::class, 'destroy']);
-        Route::get('/job-listings',       [AdminController::class, 'jobListings']);
-        Route::delete('/job-listings/{id}', [AdminController::class, 'deleteJobListing']);
-        Route::get('/applications',       [AdminController::class, 'applications']);
-    });
     });
 
     Route::prefix('company')->group(function () {
@@ -55,6 +48,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/job-listings/{id}/applications', [ApplicationController::class, 'index']);
         Route::put('/applications/{id}',              [ApplicationController::class, 'update']);
+    });
+
+    Route::prefix('admin')->group(function () {
+        Route::get('/users',                [AdminController::class, 'index']);
+        Route::delete('/users/{id}',        [AdminController::class, 'destroy']);
+        Route::get('/job-listings',         [AdminController::class, 'jobListings']);
+        Route::delete('/job-listings/{id}', [AdminController::class, 'deleteJobListing']);
+        Route::get('/applications',         [AdminController::class, 'applications']);
     });
 });
 
