@@ -1,59 +1,125 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Karijera.rs — Backend API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+REST API za platformu za oglašavanje i prijavu na poslove. Omogućava registraciju i
+prijavu korisnika (tražioci posla, kompanije, administratori), upravljanje profilima,
+objavljivanje i pretragu oglasa za posao, prijavljivanje na oglase i administraciju
+sistema.
 
-## About Laravel
+Backend je rađen u Laravel-u i komunicira sa React frontend-om preko HTTP/JSON REST
+API-ja.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tehnologije
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **PHP** ^8.2
+- **Laravel** ^12.0
+- **Laravel Sanctum** — autentikacija putem API tokena
+- **MySQL** — relaciona baza podataka
+- **Abstract API** — eksterna validacija email adrese prilikom registracije
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Struktura projekta
 
-## Learning Laravel
+```
+app/Http/Controllers/      kontroleri (Auth, JobListing, JobSeeker, Company, Application, Admin, User)
+app/Http/Resources/        API Resource klase za serijalizaciju odgovora
+app/Models/                Eloquent modeli (User, JobSeeker, Company, JobListing, Application, Admin)
+database/migrations/       struktura baze podataka
+database/factories/        fabrike za generisanje test podataka
+database/seeders/          seederi za popunjavanje baze (po jedan seeder za svaki model)
+routes/api.php             definicije API ruta
+swagger.yaml                OpenAPI/Swagger specifikacija API-ja
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Modeli i relacije
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `User` 1—0..1 `JobSeeker` / 1—0..1 `Company` (zavisno od role korisnika)
+- `Company` 1—0..* `JobListing`
+- `JobSeeker` 1—0..* `Application`
+- `JobListing` 1—0..* `Application`
 
-## Laravel Sponsors
+Role korisnika: `job_seeker`, `company`, `admin`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Instalacija
 
-### Premium Partners
+1. Instaliraj zavisnosti:
+   ```bash
+   composer install
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+2. Kreiraj `.env` fajl na osnovu `.env.example` i podesi konekciju na bazu:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## Contributing
+   Podesiti u `.env`:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=backend
+   DB_USERNAME=root
+   DB_PASSWORD=
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ABSTRACT_API_KEY=<svoj API ključ sa abstractapi.com>
+   ```
 
-## Code of Conduct
+3. Pokreni migracije:
+   ```bash
+   php artisan migrate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Popuni bazu test podacima (pokreće sve seedere redom: `UserSeeder`, `JobSeekerSeeder`,
+   `CompanySeeder`, `JobListingSeeder`, `ApplicationSeeder`):
+   ```bash
+   php artisan db:seed
+   ```
 
-## Security Vulnerabilities
+5. Pokreni razvojni server:
+   ```bash
+   php artisan serve
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+API je dostupan na `http://localhost:8000/api`.
 
-## License
+## Autentikacija
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Prijava (`/api/login`) i registracija (`/api/register`) vraćaju Sanctum pristupni token.
+Token se šalje u zaglavlju za sve zaštićene rute:
+
+```
+Authorization: Bearer {access_token}
+```
+
+## API dokumentacija
+
+Kompletna specifikacija svih endpoint-a (parametri, zaglavlja, format odgovora) nalazi se
+u [`swagger.yaml`](swagger.yaml). Može se importovati na [editor.swagger.io](https://editor.swagger.io)
+za interaktivan pregled, ili lokalno generisati statičku HTML dokumentaciju:
+
+```bash
+npx @redocly/cli build-docs swagger.yaml
+```
+
+## Pregled glavnih ruta
+
+| Metoda | Ruta                                 | Opis                                  | Pristup           |
+|--------|---------------------------------------|----------------------------------------|--------------------|
+| POST   | `/register`                           | Registracija korisnika                 | Javno              |
+| POST   | `/login`                               | Prijava korisnika                      | Javno              |
+| GET    | `/job-listings`                       | Lista oglasa (sa filterima)            | Javno              |
+| GET    | `/job-listings/search`                | Pretraga oglasa                        | Javno              |
+| GET    | `/job-seeker/profile`                 | Profil tražioca posla                  | job_seeker         |
+| POST   | `/job-seeker/applications`            | Prijava na oglas                       | job_seeker         |
+| GET    | `/company/profile`                    | Profil kompanije                       | company            |
+| POST   | `/company/job-listings`               | Kreiranje oglasa                       | company            |
+| PUT    | `/company/applications/{id}`          | Izmena statusa prijave                 | company            |
+| GET    | `/admin/users`                        | Lista svih korisnika                   | admin              |
+
+Detaljan spisak svih ruta: [`routes/api.php`](routes/api.php).
+
+## Dijagrami
+
+- [`dijagram-komponenti.drawio`](dijagram-komponenti.drawio) — arhitektura aplikacije
+- [`dijagram-klasa.drawio`](dijagram-klasa.drawio) — dijagram klasa (modeli i relacije)
+
+Otvaraju se na [app.diagrams.net](https://app.diagrams.net) (File → Open from → Device).
