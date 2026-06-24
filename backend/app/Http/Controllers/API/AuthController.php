@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 
 class AuthController extends Controller
@@ -30,31 +32,28 @@ class AuthController extends Controller
             }
 
             $data = $response->json();
-            \Log::info('Abstract API response', ['data' => $data]);
+            Log::info('Abstract API response', ['data' => $data]);
 
             if (!isset($data['email_deliverability'])) {
                 return true;
             }
 
-            // Proveri format
             if (!$data['email_deliverability']['is_format_valid']) {
                 return false;
             }
 
-            // Proveri MX record
             if (!$data['email_deliverability']['is_mx_valid']) {
                 return false;
             }
 
-            // Proveri da li je disposable
             if (isset($data['email_quality']['is_disposable']) && $data['email_quality']['is_disposable']) {
                 return false;
             }
 
             return true;
 
-        } catch (\Exception $e) {
-            \Log::error('Abstract API error', ['error' => $e->getMessage()]);
+        } catch (Exception $e) {
+            Log::error('Abstract API error', ['error' => $e->getMessage()]);
             return true;
         }
     }
