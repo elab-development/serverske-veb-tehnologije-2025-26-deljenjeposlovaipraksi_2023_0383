@@ -204,10 +204,15 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        $name = match($user->role) {
+            'job_seeker' => $user->jobSeeker->first_name,
+            'company'    => $user->company->company_name,
+            'admin'      => 'Admin',
+            default      => 'Korisnik',
+        };
+
         return response()->json([
-            'message' => 'Hi ' . ($user->role === 'job_seeker'
-                ? $user->jobSeeker->first_name
-                : $user->company->company_name) . ', welcome back!',
+            'message'      => 'Hi ' . $name . ', welcome back!',
             'data'         => $user,
             'access_token' => $token,
             'token_type'   => 'Bearer',
