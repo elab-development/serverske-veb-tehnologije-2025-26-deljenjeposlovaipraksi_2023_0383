@@ -36,6 +36,7 @@ class JobListingController extends Controller
             $query->where('is_active', $request->is_active);
         }
 
+        $query->orderBy($request->get('sort_by', 'created_at'), $request->get('sort_order', 'desc'));
         $listings = $query->paginate($request->get('per_page', 10));
 
         if($listings->isEmpty()){
@@ -105,6 +106,7 @@ class JobListingController extends Controller
             $query->where('salary_max', '<=', $request->salary_max);
         }
 
+        $query->orderBy($request->get('sort_by', 'created_at'), $request->get('sort_order', 'desc'));
         $results = $query->paginate($request->get('per_page', 10));
 
         if ($results->isEmpty()) {
