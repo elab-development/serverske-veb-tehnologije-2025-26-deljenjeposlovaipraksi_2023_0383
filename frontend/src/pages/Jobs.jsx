@@ -1,15 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import JobListCard from "../components/Jobs/JobListCard";
 import "../styles/global.css";
- 
-const ALL_JOBS = [
-  { id: 1, title: "Senior Frontend Developer", company: "TechFlow Systems", location: "Beograd", workType: "Remote", jobType: "Puno radno vreme", salary: "3 000€ – 4 500€", postedAt: "12.05.2026", tags: ["React", "TypeScript", "Next.js"], description: "Tražimo iskusnog frontend developera za rad na SaaS platformi. Rad u modernom tech stacku sa naglaskom na performance i UX.", isNew: true, isUrgent: false },
-  { id: 2, title: "UI/UX Designer", company: "Nova Vizija d.o.o.", location: "Novi Sad", workType: "Hibrid", jobType: "Puno radno vreme", salary: "2 000€ – 3 000€", postedAt: "13.05.2026", tags: ["Figma", "Prototyping", "Design Systems"], description: "Dizajner koji će kreirati korisničke interfejse za mobilne i web aplikacije. Odlična sloboda u kreiranju rešenja.", isNew: true, isUrgent: false },
-  { id: 3, title: "Full Stack Developer", company: "DataStream Analytics", location: "Beograd", workType: "Kancelarija", jobType: "Puno radno vreme", salary: "2 800€ – 4 000€", postedAt: "10.05.2026", tags: ["Laravel", "Vue.js", "MySQL"], description: "Razvoj i održavanje web aplikacija za analitiku podataka. Tim od 12 developera, agilna metodologija.", isNew: false, isUrgent: true },
-  { id: 4, title: "Marketing Specialist", company: "GrowthLab Agency", location: "Beograd", workType: "Hibrid", jobType: "Puno radno vreme", salary: "1 200€ – 1 800€", postedAt: "11.05.2026", tags: ["SEO", "Google Ads", "Content"], description: "Upravljanje digitalnim marketingom za klijente iz regiona. Kreativna agencija sa dinamičnim timom.", isNew: false, isUrgent: false },
-  { id: 5, title: "DevOps Engineer", company: "CloudBase d.o.o.", location: "Remote", workType: "Remote", jobType: "Puno radno vreme", salary: "3 500€ – 5 000€", postedAt: "09.05.2026", tags: ["Docker", "Kubernetes", "AWS"], description: "Održavanje cloud infrastrukture i CI/CD pipeline-a za enterprise klijente.", isNew: false, isUrgent: true },
-  { id: 6, title: "Junior Backend Developer", company: "StartupHub", location: "Novi Sad", workType: "Hibrid", jobType: "Puno radno vreme", salary: "1 000€ – 1 500€", postedAt: "14.05.2026", tags: ["Node.js", "PostgreSQL"], description: "Odlična prilika za juniore koji žele da napreduju u backend razvoju. Mentorstvo i continual learning.", isNew: true, isUrgent: false },
-];
  
 const SORT_OPTIONS = ["Najnovije", "Najstarije", "Plata (rastuće)", "Plata (opadajuće)"];
 const WORK_TYPES = ["Sve", "Remote", "Hibrid", "Kancelarija"];
@@ -18,15 +9,35 @@ const Jobs = () => {
   const [search, setSearch] = useState("");
   const [workType, setWorkType] = useState("Sve");
   const [sort, setSort] = useState("Najnovije");
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/job-listings", {
+      headers: {
+        "Accept": "application/json",
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setJobs(data.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Greška:", err);
+        setLoading(false);
+      });
+  }, []);
  
-  const filtered = ALL_JOBS.filter((job) => {
+  const filtered = jobs.filter((job) => {
     const matchSearch =
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase()) ||
-      job.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-    const matchType = workType === "Sve" || job.workType === workType;
+      job.company?.company_name.toLowerCase().includes(search.toLowerCase());
+    const matchType = workType === "Sve" || job.type === workType;
     return matchSearch && matchType;
   });
+
+  if (loading) return <div>Učitavanje...</div>;
  
   return (
     <div className="jobs-page">
@@ -40,7 +51,7 @@ const Jobs = () => {
             <span>te inspiriše.</span>
           </h1>
           <p className="jobs-page__hero-sub">
-            Pretraži {ALL_JOBS.length}+ aktivnih oglasa širom Srbije.
+            Pretraži {jobs.length}+ aktivnih oglasa širom Srbije.
           </p>
           <div className="jobs-page__search-wrap">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -100,7 +111,18 @@ const Jobs = () => {
           {filtered.length > 0 ? (
             filtered.map((job, i) => (
               <div key={job.id} style={{ animationDelay: `${i * 0.07}s` }}>
-                <JobListCard {...job} />
+                <JobListCard
+                  id={job.id}
+                  title={job.title}
+                  company={job.company?.company_name ?? ""}
+                  location={job.location ?? ""}
+                  workType={job.type ?? ""}
+                  jobType={job.type ?? ""}
+                  salary={job.salary_min && job.salary_max ? `${job.salary_min}€ – ${job.salary_max}€` : ""}
+                  postedAt={job.created_at ? new Date(job.created_at).toLocaleDateString("sr-RS") : ""}
+                  tags={[]}
+                  description={job.description ?? ""}
+                />
               </div>
             ))
           ) : (
