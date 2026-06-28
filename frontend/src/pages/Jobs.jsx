@@ -11,7 +11,6 @@ const Jobs = () => {
   const [sort, setSort] = useState("Najnovije");
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/job-listings", {
       headers: {

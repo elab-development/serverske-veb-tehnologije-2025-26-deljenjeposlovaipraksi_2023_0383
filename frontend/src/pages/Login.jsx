@@ -52,6 +52,9 @@ const Login = () => {
         return;
       }
 
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('role', data.data.role);
+
       if(data.data.role === 'job_seeker'){
         window.location.href = '/home';
       }else if(data.data.role === 'company'){

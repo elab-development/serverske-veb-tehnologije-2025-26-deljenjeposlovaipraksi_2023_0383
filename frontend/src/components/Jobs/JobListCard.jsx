@@ -17,6 +17,44 @@ const JobListCard = ({
   isUrgent = false,
 }) => {
   const [saved, setSaved] = useState(false);
+
+  const handleApply = async() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if(!token){
+      window.location.href = '/login';
+      return;
+    }
+
+    if(role !== 'job_seeker'){
+      alert('Samo kandidati mogu da se prijave na oglas');
+      return;
+    }
+
+    try{
+      const response = await fetch('http://127.0.0.1:8000/api/job-seeker/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({job_listing_id: id})
+      });
+
+      const data = await response.json();
+
+      if(!response.ok){
+        alert(data.message || 'Greska pri prijavi. ');
+        return;
+      }
+      
+      alert('Uspešno ste se prijavili na oglas!');
+    }catch (error) {
+      alert('Greška pri povezivanju sa serverom.');
+    }
+  };
  
   const initials = company
     .split(" ")
@@ -96,7 +134,7 @@ const JobListCard = ({
               )}
             </div>
             <div className="jlc__salary">{salary}</div>
-            <button className="jlc__apply">
+            <button className="jlc__apply" onClick={handleApply}>
               Prijavi se
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M12 5l7 7-7 7" />
