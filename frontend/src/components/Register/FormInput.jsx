@@ -10,6 +10,8 @@ const FormInput = ({
   error = "",
   required = false,
   icon = null,
+  multiline = false,
+  rows = 3,
 }) => {
   return (
     <div className={`form-input ${error ? "form-input--error" : ""}`}>
@@ -20,18 +22,31 @@ const FormInput = ({
         </label>
       )}
       <div className="form-input__wrap">
-        {icon && <span className="form-input__icon">{icon}</span>}
-        <input
-          className={`form-input__field ${icon ? "form-input__field--icon" : ""}`}
-          id={name}
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          autoComplete="off"
-        />
+        {icon && <span className={`form-input__icon ${multiline ? "form-input__icon--top" : ""}`}>{icon}</span>}
+        {multiline ? (
+          <textarea
+            className={`form-input__field form-input__textarea ${icon ? "form-input__field--icon" : ""}`}
+            id={name}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            required={required}
+            rows={rows}
+          />
+        ) : (
+          <input
+            className={`form-input__field ${icon ? "form-input__field--icon" : ""}`}
+            id={name}
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            required={required}
+            autoComplete="off"
+          />
+        )}
       </div>
       {error && <p className="form-input__error">{error}</p>}
     </div>

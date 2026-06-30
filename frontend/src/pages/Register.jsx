@@ -16,6 +16,7 @@ const Register = () => {
     lastName: "",
     phone: "",
     city: "",
+    bio: "",
     education: "",
     github_url: "",
     companyName: "",
@@ -64,6 +65,7 @@ const Register = () => {
         last_name: form.lastName,
         phone: form.phone,
         location: form.city,
+        bio: form.bio,
         education: form.education,
         github_url: form.github_url,
       } : {
@@ -88,9 +90,21 @@ const Register = () => {
 
       const data = await response.json();
 
+      console.log('STATUS:', response.status);
+      console.log('DATA:', data);
+
       if (!response.ok) {
         if (data.errors) {
-          setErrors(data.errors);
+          const keyMap = {
+            first_name: 'firstName', last_name: 'lastName',
+            company_name: 'companyName', company_size: 'companySize',
+            github_url: 'github_url',
+          };
+          const mapped = {};
+          Object.entries(data.errors).forEach(([k, v]) => {
+            mapped[keyMap[k] || k] = Array.isArray(v) ? v[0] : v;
+          });
+          setErrors(mapped);
         } else {
           setErrors({ general: data.message || 'Greška pri registraciji.' });
         }
@@ -100,9 +114,10 @@ const Register = () => {
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('role', data.data.role);
 
-      window.location.href = '/home';
+      window.location.href = '/';
 
     } catch (error) {
+      console.log('CATCH ERROR:', error);
       setErrors({ general: 'Greška pri povezivanju sa serverom.' });
     } finally {
       setLoading(false);
@@ -184,6 +199,12 @@ const Register = () => {
 
           <form className="register__form" onSubmit={handleSubmit} noValidate>
 
+            {errors.general && (
+              <div className="register__error">
+                {errors.general}
+              </div>
+            )}
+
             {type === "kandidat" && (
               <>
                 <div className="register__row">
@@ -194,8 +215,11 @@ const Register = () => {
                   <FormInput label="Telefon" name="phone" type="tel" value={form.phone} onChange={handle} placeholder="+381 60 000 0000" icon="📱" />
                   <FormInput label="Grad" name="city" value={form.city} onChange={handle} placeholder="Beograd" icon="📍" />
                 </div>
-                <FormInput label="Obrazovanje" name="education" value={form.education} onChange={handle} placeholder="Fakultet organizacionih nauka" icon="🎓" />
-                <FormInput label="GitHub URL" name="github_url" value={form.github_url} onChange={handle} placeholder="https://github.com/korisnik" icon="💻" />
+                <div className="register__row">
+                  <FormInput label="Obrazovanje" name="education" value={form.education} onChange={handle} placeholder="Fakultet organizacionih nauka" icon="🎓" />
+                  <FormInput label="GitHub URL" name="github_url" value={form.github_url} onChange={handle} placeholder="https://github.com/korisnik" icon="💻" />
+                </div>
+                <FormInput label="Kratka biografija" name="bio" value={form.bio} onChange={handle} placeholder="Opišite vaše iskustvo, veštine i ciljeve..." icon="📝" multiline rows={3} />
               </>
             )}
 
@@ -207,7 +231,7 @@ const Register = () => {
                   <FormInput label="Broj zaposlenih" name="companySize" value={form.companySize} onChange={handle} placeholder="50 – 200" icon="👥" />
                 </div>
                 <FormInput label="Lokacija" name="location" value={form.location} onChange={handle} placeholder="Beograd" icon="📍" />
-                <FormInput label="Opis kompanije" name="description" value={form.description} onChange={handle} placeholder="Kratki opis vaše kompanije..." icon="📝" />
+                <FormInput label="Opis kompanije" name="description" value={form.description} onChange={handle} placeholder="Kratki opis vaše kompanije..." icon="📝" multiline rows={3} />
               </>
             )}
 
@@ -221,12 +245,6 @@ const Register = () => {
               i{" "}
               <Link to="/privatnost" className="register__form-link">Politiku privatnosti</Link>.
             </p>
-
-            {errors.general && (
-              <div className="login__error">
-                {errors.general}
-              </div>
-            )}
 
             <FormButton type="submit" variant="primary" fullWidth loading={loading}>
               {type === "kandidat" ? "Kreiraj nalog" : "Registruj kompaniju"} →

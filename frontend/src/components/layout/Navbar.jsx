@@ -26,11 +26,11 @@ const Navbar = () => {
   };
 
   const links = [
-    { to: "/", label: "Početna" },
-    { to: "/poslovi", label: "Poslovi" },
-    { to: "/prakse", label: "Prakse" },
-    { to: "/kompanije", label: "Kompanije" },
-    { to: "/o-nama", label: "O nama" },
+    { to: "/", label: "Home" },
+    { to: "/poslovi", label: "Jobs" },
+    { to: "/internships", label: "Internships" },
+    { to: "/companies", label: "Companies" },
+    { to: "/about", label: "About Us" },
   ];
 
   return (
@@ -39,7 +39,7 @@ const Navbar = () => {
 
         <Link to="/" className="navbar__logo">
           <span className="navbar__logo-icon">⚡</span>
-          <span className="navbar__logo-text">Karijera<em>Hub</em></span>
+          <span className="navbar__logo-text">Career<em>Hub</em></span>
         </Link>
 
         <nav className={`navbar__links ${menuOpen ? "navbar__links--open" : ""}`}>
@@ -54,11 +54,11 @@ const Navbar = () => {
           ))}
           <div className="navbar__auth navbar__auth--mobile">
             {isLoggedIn ? (
-              <button onClick={handleLogout} className="navbar__btn navbar__btn--ghost">Odjava</button>
+              <button onClick={handleLogout} className="navbar__btn navbar__btn--ghost">Logout</button>
             ) : (
               <>
-                <Link to="/login" className="navbar__btn navbar__btn--ghost">Prijava</Link>
-                <Link to="/registracija" className="navbar__btn navbar__btn--solid">Registracija</Link>
+                <Link to="/login" className="navbar__btn navbar__btn--ghost">Login</Link>
+                <Link to="/registracija" className="navbar__btn navbar__btn--solid">Register</Link>
               </>
             )}
           </div>
@@ -66,11 +66,11 @@ const Navbar = () => {
 
         <div className="navbar__auth navbar__auth--desktop">
           {isLoggedIn ? (
-            <button onClick={handleLogout} className="navbar__btn navbar__btn--ghost">Odjava</button>
+            <button onClick={handleLogout} className="navbar__btn navbar__btn--ghost">Logout</button>
           ) : (
             <>
-              <Link to="/login" className="navbar__btn navbar__btn--ghost">Prijava</Link>
-              <Link to="/registracija" className="navbar__btn navbar__btn--solid">Registracija</Link>
+              <Link to="/login" className="navbar__btn navbar__btn--ghost">Login</Link>
+              <Link to="/registracija" className="navbar__btn navbar__btn--solid">Register</Link>
             </>
           )}
         </div>
@@ -78,7 +78,7 @@ const Navbar = () => {
         <button
           className={`navbar__burger ${menuOpen ? "navbar__burger--open" : ""}`}
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Otvori meni"
+          aria-label="Open menu"
         >
           <span /><span /><span />
         </button>

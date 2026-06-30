@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Jobs from './pages/Jobs';
 import About from './pages/About';
+import JobDetails from './pages/JobDetails';
 
 function App() {
   return (
@@ -21,7 +22,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/poslovi" element={<Jobs/>}/>
+              <Route path="/poslovi/:id" element={<JobDetails/>}/>
               <Route path="/o-nama" element={<About />} />
+              <Route path="/registracija" element={<Register />} />
             </Routes>
           </main>
           <Footer />
